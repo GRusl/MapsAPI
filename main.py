@@ -16,6 +16,8 @@ class MyWidget(QMainWindow):
         self.z = 10
         self.x, self.y = .0, .0
 
+        self.map_type = ['map', 'sat', 'sat,skl']
+
         self.update_img()
 
     def update_img(self):
@@ -23,7 +25,8 @@ class MyWidget(QMainWindow):
         img = ms.get_img(
             {
                 'll': ','.join(map(str, (self.x, self.y))),
-                'spn': ','.join(map(str, [self.z] * 2))
+                'spn': ','.join(map(str, [self.z] * 2)),
+                'l': self.map_type[0]
             }
         ).getvalue()
 
@@ -38,6 +41,9 @@ class MyWidget(QMainWindow):
             self.z = min((self.z + 5) // 5 * 5, 20)
         elif event.key() == Qt.Key_X:
             self.z = max(self.z - 5, 1)
+
+        elif event.key() == Qt.Key_Q:
+            self.map_type = self.map_type[1:] + [self.map_type[0]]
 
         elif event.key() == Qt.Key_Right:
             self.x = min(self.x + self.z * 2, 90 - self.z)
