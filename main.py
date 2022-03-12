@@ -69,10 +69,16 @@ class MyWidget(QMainWindow):
     def search_fun(self):
         text_for_enabled = 'Искать'
         if self.search.text() != text_for_enabled:
-            self.toponym_to_find.setEnabled(True)
-            self.toponym_to_find.setText('')
-            self.search.setText(text_for_enabled)
-            self.pt = None
+            try:
+                self.toponym_to_find.setEnabled(True)
+
+                self.toponym_to_find.setText('')
+                self.ful_path.setText('')
+
+                self.search.setText(text_for_enabled)
+                self.pt = None
+            except Exception as e:
+                print(e)
         else:
             try:
                 response = requests.get(
@@ -82,12 +88,16 @@ class MyWidget(QMainWindow):
                         "geocode": self.toponym_to_find.text(),
                         "format": "json"
                     }
-                )
+                ).json()
 
                 self.x, self.y = map(float, selection_scale(response))
                 self.z = .001  # Чтобы было видно
 
                 self.pt = ','.join(map(str, (self.x, self.y, 'flag')))
+
+                self.ful_path.setText('Адрес: ' + response['response']['GeoObjectCollection'][
+                    'featureMember'][0]['GeoObject']['metaDataProperty']['GeocoderMetaData']['AddressDetails'][
+                    'Country']['AddressLine'])
             except Exception as e:
                 print(e)
                 self.pt = None
