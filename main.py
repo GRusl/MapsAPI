@@ -1,6 +1,9 @@
 import sys
 
+import requests
+
 import mapstatic as ms
+from scalmap import selection_scale
 
 from PyQt5 import uic
 from PyQt5.QtCore import Qt
@@ -16,9 +19,13 @@ class MyWidget(QMainWindow):
         self.z = 10
         self.x, self.y = .0, .0
 
+        self.pt = None
+
         self.map_type = ['map', 'sat', 'sat,skl']
 
         self.update_img()
+
+        self.search.clicked.connect(self.search_fun)
 
     def update_img(self):
         pixmap = QPixmap()
@@ -27,7 +34,7 @@ class MyWidget(QMainWindow):
                 'll': ','.join(map(str, (self.x, self.y))),
                 'spn': ','.join(map(str, [self.z] * 2)),
                 'l': self.map_type[0]
-            }
+            } | ({'pt': self.pt} if self.pt else {})
         ).getvalue()
 
         if img:
@@ -56,6 +63,36 @@ class MyWidget(QMainWindow):
             self.y = max(self.y - self.z * 2, -90 + self.z)
 
         print(self.x, self.y, self.z)
+
+        self.update_img()
+
+    def search_fun(self):
+        text_for_enabled = 'Искать'
+        if self.search.text() != text_for_enabled:
+            self.toponym_to_find.setEnabled(True)
+            self.search.setText(text_for_enabled)
+            self.pt = None
+        else:
+            try:
+                response = requests.get(
+                    "http://geocode-maps.yandex.ru/1.x/",
+                    params={
+                        "apikey": "40d1649f-0493-4b70-98ba-98533de7710b",
+                        "geocode": self.toponym_to_find.text(),
+                        "format": "json"
+                    }
+                )
+
+                self.x, self.y = map(float, selection_scale(response))
+                self.z = .001  # Чтобы было видно
+
+                self.pt = ','.join(map(str, (self.x, self.y, 'flag')))
+            except Exception as e:
+                print(e)
+                self.pt = None
+
+            self.toponym_to_find.setEnabled(False)
+            self.search.setText('Разблокировать')
 
         self.update_img()
 
