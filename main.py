@@ -2,8 +2,6 @@ import sys
 
 import mapstatic as ms
 
-from PIL import Image
-
 from PyQt5 import uic
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPixmap
@@ -15,23 +13,43 @@ class MyWidget(QMainWindow):
         super().__init__()
         uic.loadUi('main.ui', self)
 
-        self.z = 16
+        self.z = 10
+        self.x, self.y = .0, .0
 
         self.update_img()
 
     def update_img(self):
-        Image.open(ms.get_img({'ll': '20.0,20.0', 'z': self.z})).save('map.png')
+        pixmap = QPixmap()
+        img = ms.get_img(
+            {
+                'll': ','.join(map(str, (self.x, self.y))),
+                'spn': ','.join(map(str, [self.z] * 2))
+            }
+        ).getvalue()
 
-        pixmap = QPixmap('map.png')
+        if img:
+            pixmap.loadFromData(img)
 
         self.img.setFixedSize(pixmap.width(), pixmap.height())
         self.img.setPixmap(pixmap)
 
     def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Up:
-            self.z = min(self.z + 1, 17)
+        if event.key() == Qt.Key_Z:
+            self.z = min((self.z + 5) // 5 * 5, 20)
+        elif event.key() == Qt.Key_X:
+            self.z = max(self.z - 5, 1)
+
+        elif event.key() == Qt.Key_Right:
+            self.x = min(self.x + self.z * 2, 90 - self.z)
+        elif event.key() == Qt.Key_Left:
+            self.x = max(self.x - self.z * 2, -90 + self.z)
+
+        elif event.key() == Qt.Key_Up:
+            self.y = min(self.y + self.z * 2, 90 - self.z)
         elif event.key() == Qt.Key_Down:
-            self.z = max(self.z - 1, 0)
+            self.y = max(self.y - self.z * 2, -90 + self.z)
+
+        print(self.x, self.y, self.z)
 
         self.update_img()
 
