@@ -70,6 +70,7 @@ class MyWidget(QMainWindow):
         text_for_enabled = 'Искать'
         if self.search.text() != text_for_enabled:
             self.toponym_to_find.setEnabled(True)
+            self.toponym_to_find.setText('')
             self.search.setText(text_for_enabled)
             self.pt = None
         else:
@@ -92,7 +93,7 @@ class MyWidget(QMainWindow):
                 self.pt = None
 
             self.toponym_to_find.setEnabled(False)
-            self.search.setText('Разблокировать')
+            self.search.setText('Сброс поискового результата')
 
         self.update_img()
 

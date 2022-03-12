@@ -89,7 +89,7 @@
     <item row="1" column="2">
      <widget class="QPushButton" name="search">
       <property name="text">
-       <string>Разблокировать</string>
+       <string>Сброс поискового результата</string>
       </property>
      </widget>
     </item>
