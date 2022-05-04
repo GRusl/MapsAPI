@@ -118,6 +118,8 @@ class MyWidget(QMainWindow, Ui_MainWindow):
 
         self.pt = None
 
+        self.out_text = []
+
         self.map_type = ['map', 'sat', 'sat,skl']
 
         self.update_img()
@@ -125,6 +127,10 @@ class MyWidget(QMainWindow, Ui_MainWindow):
         self.toponym_to_find.setEnabled(True)
 
         self.search.clicked.connect(self.search_fun)
+        self.checkBox.stateChanged.connect(lambda state, cb=self.checkBox: self.order(state, cb))
+
+    def order(self, state, cb):
+        self.search_fun()
 
     def update_img(self):
         pixmap = QPixmap()
